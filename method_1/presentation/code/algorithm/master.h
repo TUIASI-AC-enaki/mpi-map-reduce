@@ -74,14 +74,17 @@ void master_collect(std::string output_filename, std::string message = ""){
     std::sort((*filenames_ptr).begin(), (*filenames_ptr).end());
 
     for (auto & temp_filename : *filenames_ptr) {
+        auto lines_ptr = file_reader::get_lines(TEMP_FOLDER_INDIRECT_IDX_PHASE_REDUCERS, temp_filename);
         std::vector<std::string> word_vector;
-        word_parser::split_string_by_separator(word_vector, temp_filename, '@');
+        word_parser::split_string_by_separator(word_vector, (*lines_ptr)[0], '@');
         // std::cout << temp_filename << std::endl;
         outfile << "\n-> " << word_vector[0] << "\n";
         for (auto index = 1; index < word_vector.size(); index+=2){
             outfile << "\t <" << word_vector[index] << ", " << word_vector[index+1] << ">\n";
         }
+        free(lines_ptr);
     }
+    free(filenames_ptr);
 }
 
 #endif //MPI_MAP_REDUCE_PROJECT_MASTER_H
