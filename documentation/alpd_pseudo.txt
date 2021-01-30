@@ -1,0 +1,64 @@
+function master_emit_task(filenames, phase_tag)
+	active_workers(i) = false, for i=1..workers_size
+	for i = 1 to filenames.count
+		worker_index = get_inactive_worker(active_workers)
+		if worker_index = -1
+			worker_index = await a worker_to_finish_a_job()
+		Emit(filenames(i), worker_index, phase_tag)
+		active_workers(worker_index) = true
+	while any(active_workers(i) = true, i = 1 .. workers_size)
+		worker_index = await a worker_to_finish_a_job()
+		active_workers(worker_index) = false
+		
+function worker_receive_task()
+	buffer, tag_phase = await_command_from_master()
+	while tag_phase !=  FINISHED_WORK
+		switch(tag_phase)
+			case MAP_DIRECT_INDEX_PHASE:
+				mapper_direct_index_phase(initial_directory, buffer, rank);
+			case REDUCE_DIRECT_INDEX_PHASE:
+				reduce_direct_index_phase(buffer, rank);
+			case MAP_INDIRECT_INDEX_PHASE:
+				mapper_indirect_index_phase(buffer, rank);
+			case REDUCE_INDIRECT_INDEX_PHASE:
+				reduce_indirect_index_phase(buffer);
+		Emit_To_Master_That_Task_Is_Done();
+		buffer, tag_phase = await_command_from_master()
+		
+function mapper_indirect_index_phase(filename, rank)
+	filenames = get_filenames(filename)
+	for i = 1 to filenames.count
+		new_filename = indirect_index(filenames(i))
+		create_folder_if_not_exist_with_word(filenames(i).word)
+		Save_To_Storage_Indirect_Index(new_filename);	// word@filename@count@timestamp@rank
+	
+function mapper_direct_index_phase(directory_name, filename, rank)
+	lines = split_into_lines(directory_name, filename)
+	for i = 1 to lines.count
+		words = split_into_words(lines(i))
+		for j = 1 to words.count
+			Save_To_Storage_Direct_Index(filename, words(j), rank);	// filename@word@1@timestamp@rank
+	
+
+function reducer_direct_index_phase(filename, rank)
+	files = get_files(filename)
+	
+	for i = 1 to files.count
+		if files(i) in dict
+			dict(files(i)) += 1
+		else
+			dict(files(i)) = 1
+		
+	for i = 1 to dict.count
+		Save_To_Storage_Indirect_Index(filename, dict(i), rank);	// filename@word@count@timestamp@rank
+
+	
+function reducer_indirect_index_phase(word, rank)
+	words = get_files(word)
+	for i = 1 to files.count
+		if files(i) not in dict
+			dict(files(i)) = init list()
+		dict(files(i)).push(filename, count);
+	for i = 1 to files.count
+		Save_To_Storage_Indirect_Index(words(i), rank);	// word@count@filenames@rank
+		
