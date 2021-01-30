@@ -23,7 +23,7 @@ void reduce_direct_index_phase(const char* filename, int rank){
     }
     full_path = concatenate_to_path(TEMP_FOLDER_DIRECT_IDX_PHASE_REDUCERS, filename);
     printer::create_word_files_from_dictionary(full_path.c_str(), word_map, filename, rank);
-    delete words_ptr;
+    free(words_ptr);
 }
 
 void reduce_indirect_index_phase(const char* word){
@@ -46,7 +46,7 @@ void reduce_indirect_index_phase(const char* word){
     }
     printer::create_word_files_from_filenames_pair(TEMP_FOLDER_INDIRECT_IDX_PHASE_REDUCERS, word_list_with_file_pair, word);
 
-    delete filenames_ptr;
+    free(filenames_ptr);
 }
 
 #endif //MPI_MAP_REDUCE_PROJECT_REDUCER_H

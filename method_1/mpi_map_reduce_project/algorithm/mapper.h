@@ -25,7 +25,7 @@ void mapper_direct_index_phase(const char* directory_name, const char* filename,
         word_vector.clear();
         filename_builder.str("");
     }
-    delete lines_in_file_ptr;
+    free(lines_in_file_ptr);
 }
 
 void mapper_indirect_index_phase(const char* filename, int rank){
@@ -39,14 +39,13 @@ void mapper_indirect_index_phase(const char* filename, int rank){
         word_parser::split_string_by_separator(word_vector, temp_filename, '@');
         auto word = word_vector[1];
         auto count = word_vector[2];
-        auto timestamp = word_vector[3];
         auto word_directory = concatenate_to_path(TEMP_FOLDER_INDIRECT_IDX_PHASE_MAPPERS, word.c_str());
         mkdir(word_directory.c_str(), 0777);
 
-        printer::create_word_file_indirect_index(word_directory.c_str(), filename, word.c_str(), std::stoull(count), std::stoull(timestamp), rank);
+        printer::create_word_file_indirect_index(word_directory.c_str(), filename, word.c_str(), std::stoull(count), rank);
         word_vector.clear();
     }
-    delete filenames_ptr;
+    free(filenames_ptr);
 }
 
 #endif //MPI_MAP_REDUCE_PROJECT_MAPPER_H

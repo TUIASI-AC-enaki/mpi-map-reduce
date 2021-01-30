@@ -58,7 +58,6 @@ int main(int argc, char *argv[]) {
         printf("\n[ MASTER ] - A DOUA ETAPA DE REDUCERE: INDEX INDIRECT\n");
         auto words_ptr = directory_utils::get_file_names(TEMP_FOLDER_INDIRECT_IDX_PHASE_MAPPERS);
         std::sort((*words_ptr).begin(), (*words_ptr).end());
-        printer::cli_printer_vector(*words_ptr);
 
         master_index_phase(words_ptr, REDUCE_INDIRECT_INDEX_PHASE);
 
@@ -68,8 +67,8 @@ int main(int argc, char *argv[]) {
         for (int worker_idx = 0; worker_idx < WORKER_SIZE; ++worker_idx){
             MPI_Send(nullptr, 0, MPI_BYTE, worker_idx, FINISHED_WORK, MPI_COMM_WORLD);
         }
-        delete words_ptr;
-        delete filenames_ptr;
+        free(words_ptr);
+        free(filenames_ptr);
 
     } else {
         // ********** WORKER BRANCH
