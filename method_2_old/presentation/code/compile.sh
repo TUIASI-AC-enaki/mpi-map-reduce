@@ -1,0 +1,1 @@
+ mpicxx map_reduce.cpp -o map_reduce
